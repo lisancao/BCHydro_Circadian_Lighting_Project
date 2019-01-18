@@ -58,18 +58,13 @@ BCHydro_Grouped <- BCHydro_Data %>%
   group_by(ID, Condition) %>%
   nest()
 #view new dataframe 
-BCHydro_Grouped$data
+BCHydro_Grouped$data[[1]]
+
+BCHydro_Grouped
 
 
 ############UNDER CONSTRUCTION#################
 ##---------------- STATISTICAL MODELLING -------------
-
-
-
-
-
-
-
 
 play_model <- lmer(SO ~ Date + 
          (1 | Condition), 
