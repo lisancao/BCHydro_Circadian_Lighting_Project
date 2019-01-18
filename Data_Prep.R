@@ -66,9 +66,10 @@ BCHydro_Grouped
 ############UNDER CONSTRUCTION#################
 ##---------------- STATISTICAL MODELLING -------------
 
-
+#lme4 application, model 1: Sleep Duration Analysis over condition by days of data collection, variated by ID
 BCHydro_Model <- lmer(SD ~ 1 + Condition*Data_Days + (1| ID), data=BCHydro_Data)
 
+#summarize model
 summary(BCHydro_Model)
 
 
