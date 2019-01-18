@@ -55,7 +55,7 @@ str(BCHydro_Data)
 ##-----------------NEST DATA STRUCTURE---------------------
 #group by ID and condition
 BCHydro_Grouped <- BCHydro_Data %>% 
-  group_by(ID, Condition) %>%
+  group_by(ID) %>%
   nest()
 #view new dataframe 
 BCHydro_Grouped$data[[1]]
@@ -66,17 +66,10 @@ BCHydro_Grouped
 ############UNDER CONSTRUCTION#################
 ##---------------- STATISTICAL MODELLING -------------
 
-play_model <- lmer(SO ~ Date + 
-         (1 | Condition), 
-       data = BCHydro_Data)
-play_model
 
-summary(play_model)
+BCHydro_Model <- lmer(SD ~ 1 + Condition*Data_Days + (1| ID), data=BCHydro_Data)
 
-head(BCHydro_Data)
-
-
-
+summary(BCHydro_Model)
 
 
 ###mapping
