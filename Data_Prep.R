@@ -71,6 +71,22 @@ BCHydro_Grouped
 ##---------------- STATISTICAL MODELs -------------
 
 ###SUMMARIES
+#subset raw data based on condition <- ### THIS IS NOT SEGREGATED BY ID! 
+Cond0_Raw <- subset(BCHydro_Data, Condition == "0", na.rm = TRUE) 
+Cond0_Raw
+summary(Cond0_Raw)
+
+Cond1_Raw <- subset(BCHydro_Data, Condition == "1", na.rm = TRUE) 
+Cond1_Raw
+summary(Cond1_Raw)
+
+#variance for Sleep Duration on raw data
+var(Cond0_Raw$SD, na.rm = TRUE)
+var(Cond1_Raw$SD, na.rm = TRUE)
+
+#variance for Phase Deviation on raw data
+var(Cond0_Raw$phase_dev, na.rm = TRUE)
+var(Cond1_Raw$phase_dev, na.rm = TRUE)
 
 ##Counts
 #Counts Number of data points (days of data) per participant by condition
@@ -87,21 +103,27 @@ table(BCHydro_ConditionCounts)
 BCHydro_Condition <- c(BCHydro_Data$Condition)
 table(BCHydro_Condition)
 
-#summary stats on average # days based on condition
-#Condition 0
-Cond0 <- subset(BCHydro_Grouped, Condition == "0")
-summary(Cond0)
-#Condition 1
-Cond1 <- subset(BCHydro_Grouped, Condition == "1")
-summary(Cond1)
+##variance 
+#variance 
+var(BCHydro_Data$SD, na.rm = TRUE)
+var()
 
+var(Cond0_Raw$SD, na.rm = TRUE)
+var()
+
+var(Cond1_Raw$SD, na.rm = TRUE)
+var()
+
+##summary data for raws split by condition
+summary(Cond0_Raw)
+summary(Cond1_Raw)
 
 #Linear model (example for mapping)
 BCHydro_SumModel <- function(BCHydro_Data) {
   lm(SD ~ Numeric_Date, data = BCHydro_Data, na.action = na.exclude)
 }
 #map to Grouped Dataset
-BCHydro_SumNest <- map(BCHydro_Grouped$data, BCHydro_SumModel)
+BCHydro_SumNest <- map(BCHydro_Grouped$data, BCHydro_SumModel, na.action = na.exclude)
 #view output
 BCHydro_SumNest
 
