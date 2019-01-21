@@ -7,6 +7,9 @@ library(reshape2)
 library(tibble)
 library(lubridate)
 library(lme4)
+library(broom)
+library(Gviz)
+library(data.table)
 
 ##-----------------HOUSEKEEPING---------------------
 #load in dataset 
@@ -18,6 +21,8 @@ head(BCHydro_Data)
 tail(BCHydro_Data)
 #view column names
 names(BCHydro_Data)
+
+attach(BCHydro_Data)
 
 ##-------------Date Conversion------------------------
 #Lubridate (stores as the number of seconds since 1970-01-01 00:00:00UTC), as_date(), as_datetime(), as_hms()
@@ -55,17 +60,68 @@ str(BCHydro_Data)
 ##-----------------NEST DATA STRUCTURE---------------------
 #group by ID and condition
 BCHydro_Grouped <- BCHydro_Data %>% 
-  group_by(ID) %>%
+  group_by(ID, Condition) %>%
   nest()
 #view new dataframe 
 BCHydro_Grouped$data[[1]]
-
 BCHydro_Grouped
 
 
 ############UNDER CONSTRUCTION#################
-##---------------- STATISTICAL MODELLING -------------
+##---------------- STATISTICAL MODELs -------------
 
+###SUMMARIES
+
+##Counts
+#Counts Number of data points (days of data) per participant by condition
+BCHydro_GroupedIDTally <- BCHydro_Data %>% 
+  group_by(ID, Condition) %>%
+  tally()
+#print
+BCHydro_GroupedIDTally
+
+#Counts of unique participants in each condition
+BCHydro_ConditionCounts <- subset(BCHydro_Grouped, select = 'Condition')
+table(BCHydro_ConditionCounts)
+#Counts Condition Datapoints Total
+BCHydro_Condition <- c(BCHydro_Data$Condition)
+table(BCHydro_Condition)
+
+#summary stats on average # days based on condition
+#Condition 0
+Cond0 <- subset(BCHydro_Grouped, Condition == "0")
+summary(Cond0)
+#Condition 1
+Cond1 <- subset(BCHydro_Grouped, Condition == "1")
+summary(Cond1)
+
+
+#Linear model (example for mapping)
+BCHydro_SumModel <- function(BCHydro_Data) {
+  lm(SD ~ Numeric_Date, data = BCHydro_Data, na.action = na.exclude)
+}
+#map to Grouped Dataset
+BCHydro_SumNest <- map(BCHydro_Grouped$data, BCHydro_SumModel)
+#view output
+BCHydro_SumNest
+
+
+######====================
+
+BCHydro_NestedModel <- 
+  BCHydro_Grouped %>%
+  mutate(model = map(BCHydro_Data, BCHydro_SDSumModel)) %>%
+  print()
+
+BCHydro_NestedModel
+
+BCHydro_NestedPredict <- 
+  BCHydro_NestedModel %>%
+  mutate(pred = map2(BCHydro_SDSumModel, BCHydro_Data, predict)) %>%
+  print()
+
+###########################################################
+###Linear Mixed Effects Models (Multilevel models)
 #lme4 application, model 1: Sleep Duration Analysis over condition by days of data collection, variated by ID
 BCHydro_ModelSD <- lmer(SD ~ 1 + Condition*Data_Days + (1| ID), data=BCHydro_Data)
 
@@ -74,21 +130,6 @@ summary(BCHydro_ModelSD)
 
 
 ###mapping
-play_model <- function(BCHydro_Data){ 
-  lmer(SO ~ Numeric_Date + 
-         (1 | Chronotype), 
-       data = BCHydro_Data)
-  }
-
-play_model
-
-summary(play_model)
-
-
-play_map <- map(BCHydro_Grouped$data, play_model)
-
-names(BCHydro_Data)
-
 
 ##Apply models to each frame using purr::map()
 # BCHydro_Models <- map(BCHydro_Grouped$data, custommodel)
