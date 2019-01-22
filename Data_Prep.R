@@ -24,6 +24,12 @@ names(BCHydro_Data)
 
 attach(BCHydro_Data)
 
+View(BCHydro_Data)
+
+#omit NA values
+BCHydro_NAO <- na.omit(BCHydro_Data)
+
+
 ##-------------Date Conversion------------------------
 #Lubridate (stores as the number of seconds since 1970-01-01 00:00:00UTC), as_date(), as_datetime(), as_hms()
 BCHydro_Timeline <- as_date(BCHydro_Data$Date)
@@ -69,6 +75,39 @@ BCHydro_Grouped
 
 ############UNDER CONSTRUCTION#################
 ##---------------- STATISTICAL MODELs -------------
+
+##For each participant by group
+#mean
+BCHydro_Grouped %>%
+  na.omit() %>%
+  mutate(mean_SD = map_dbl(data, ~ mean(.x$SD)))
+
+#standard deviation
+BCHydro_Grouped %>%
+  na.omit() %>%
+  mutate(sd_SD = map_dbl(data, ~ sd(.x$SD)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ###SUMMARIES
 #subset raw data based on condition <- ### THIS IS NOT SEGREGATED BY ID! 
