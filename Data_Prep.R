@@ -13,7 +13,7 @@ library(data.table)
 
 ##-----------------HOUSEKEEPING---------------------
 #load in dataset 
-BCHydro_Data <- read_xlsx("~/BC_Hydro_CircRhythms_Project_2018/R_Megasheet_Lisa.xlsx")
+BCHydro_Data <- read_xlsx("~/BC_Hydro_CircRhythms_Project_2018/megasheet_all_Jan21.xlsx")
 #convert to dataframe
 BCHydro_Data <- data.frame(BCHydro_Data)
 #preview data
@@ -21,13 +21,21 @@ head(BCHydro_Data)
 tail(BCHydro_Data)
 #view column names
 names(BCHydro_Data)
-
 attach(BCHydro_Data)
 
 View(BCHydro_Data)
 
+# Create Factors
+BCHydro_Data$Condition = as.factor(BCHydro_Data$Condition)
+BCHydro_Data$ID = factor(BCHydro_Data$ID)
+BCHydro_Data$gender = as.factor(BCHydro_Data$gender)
+BCHydro_Data$Date = as.factor(BCHydro_Data$Date)
+
+# Remove day 0's
+BCHydro_Data = BCHydro_Data[-which(BCHydro_Data$Days ==0),]
+
 #omit NA values
-BCHydro_NAO <- na.omit(BCHydro_Data)
+BCHydro_Data <- na.omit(BCHydro_Data)
 
 
 ##-------------Date Conversion------------------------
@@ -77,10 +85,14 @@ BCHydro_Grouped
 ##---------------- STATISTICAL MODELs -------------
 
 ##For each participant by group
+
+#Sleep Duration basic stats
 #mean
-BCHydro_Grouped %>%
+BCHydro_SDMean <- 
+  BCHydro_Grouped %>%
   na.omit() %>%
   mutate(mean_SD = map_dbl(data, ~ mean(.x$SD)))
+plot(data = BCHydro_Grouped, BCHydro_SDMean$mean_SD ~ BCHydro_SDMean$Condition, xlab = "Condition", ylab = "Mean Sleep Duration")
 
 #standard deviation
 BCHydro_Grouped %>%
@@ -88,9 +100,21 @@ BCHydro_Grouped %>%
   mutate(sd_SD = map_dbl(data, ~ sd(.x$SD)))
 
 
+#Sleep deviation basic stats
+#mean
+BCHydro_phase_devMean <- 
+BCHydro_Grouped %>%
+  na.omit() %>%
+  mutate(mean_phasedev = map_dbl(data, ~ mean(.x$phase_dev)))
+plot(data = BCHydro_Grouped, BCHydro_phase_devMean$mean_phasedev~ BCHydro_phase_devMean$Condition, xlab = "Condition", ylab = "Mean Sleep Deviation")
 
+######returning NA 
 
-
+#standard deviation
+BCHydro_Grouped %>%
+  na.omit() %>%
+  mutate(sd_phasedev = map_dbl(data, ~ sd(.x$phase_dev)))
+#######retuning abnormally high NA 
 
 
 
